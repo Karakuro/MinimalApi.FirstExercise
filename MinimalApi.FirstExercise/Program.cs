@@ -1,4 +1,9 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using MinimalApi.FirstExercise;
+using MinimalApi.Library;
+using System.Reflection.Metadata.Ecma335;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,10 +46,68 @@ app.MapGet("/", (string a = "", string b = "", string c = "") =>
  Creare un metodo GET che restituisca la somma di tutti i valori
  */
 
-app.MapGet("/{input}", (int input) => Data.Values.Add(input));
+app.MapGet("/numbers/{input}", (int input) => Data.Values.Add(input));
 
-app.MapGet("/GetList", () => Data.Values);
+app.MapGet("/numbers/GetList", () => Data.Values);
 
-app.MapGet("/Sum", () => Data.Values.Sum());
+app.MapGet("/numbers/Sum", () => Data.Values.Sum());
 
+
+app.MapPost("/Login", (Login login) =>
+!(string.IsNullOrEmpty(login.Username) || string.IsNullOrEmpty(login.Password))
+    //{
+    //    if(string.IsNullOrEmpty(login.Username) || string.IsNullOrEmpty(login.Password))
+    //    {
+    //        return false;
+    //    } 
+    //    else
+    //    {
+    //        return true;
+    //    }
+    //}
+    );
+
+/*
+ Creare una nuova classe chiamata Invoice con le seguenti proprietà:
+ - Timestamp di tipo datetime nullable
+        public DateTime? Timestamp { get; set; }
+ - Amount di tipo decimal
+ - Customer di tipo string
+
+ Creare una nuova proprietà statica nella classe statica Data 
+ di tipo List<Invoice>
+ 
+ Creare un metodo POST che riceve un Invoice in input
+ che valorizzi il campo Timestamp con Datetime.Now
+ e che aggiunge l'oggetto alla lista di List<Invoice>
+
+ Creare un metodo GET che restituisce l'intera lista di Invoice
+ 
+ Creare un metodo GET che restituisca la somma di tutti i campi 
+ Amount della lista
+ */
+
+app.MapPost("/Invoice", ([FromBody]Invoice invoice) =>
+{
+    invoice.Timestamp = DateTime.Now;
+    Data.Invoices.Add(invoice);
+    return $"{invoice}";
+});
+
+app.MapGet("/Invoice/All", () => Data.Invoices);
+
+app.MapGet("/Invoices/Total", () =>
+{
+    //decimal tot = 0;
+    //foreach(var invoice in Data.Invoices)
+    //{
+    //    tot += invoice.Amount;
+    //}
+    //return tot;
+
+    return Data.Invoices.Sum((Invoice x) => x.Amount);
+});
+Person p = new Person();
 app.Run();
+
+
